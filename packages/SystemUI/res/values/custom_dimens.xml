@@ -10,4 +10,10 @@
     <!-- Ringer QS tile -->
     <dimen name="qs_ringer_tile_dot_radius">2dp</dimen>
 
+    <!-- Maximum horizontal offset of statusbar for burn-in protection -->
+    <dimen name="status_bar_offset_max_x">4dp</dimen>
+
+    <!-- Maximum vertical offset of statusbar for burn-in protection -->
+    <dimen name="status_bar_offset_max_y">4dp</dimen>
+
 </resources>
