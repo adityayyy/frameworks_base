@@ -2076,6 +2076,15 @@ final class DefaultPermissionGrantPolicy {
                 userId,
                 STORAGE_PERMISSIONS);
 
+        // Google App
+        grantPermissionsToPackage(
+                pm,
+                "com.google.android.googlequicksearchbox",
+                userId,
+                false /* ignoreSystemPackage */,
+                true /*whitelistRestrictedPermissions*/,
+                PHONE_PERMISSIONS);
+
     }
 
 }
