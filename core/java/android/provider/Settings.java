@@ -6689,6 +6689,10 @@ public final class Settings {
          */
 
         /**
+         * Whether to show the carrier name on the lockscreen
+         * @hide
+         */
+        public static final String CARRIER_ON_LOCKSCREEN = "carrier_on_lockscreen";
 
         /**
          * Adaptive playback

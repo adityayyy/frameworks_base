@@ -78,6 +78,13 @@
         android:title="@string/quick_settings_cellular_detail_title"
         android:icon="@drawable/ic_statusbar_mobile_network" />
 
+    <com.android.settings.preferences.SystemSettingSwitchPreference
+        android:icon="@drawable/ic_statusbar_sim_outline"
+        android:key="carrier_on_lockscreen"
+        android:title="@string/carrier_on_lockscreen_title"
+        android:summary="@string/carrier_on_lockscreen_summary"
+        android:defaultValue="true"/>
+
     <com.android.systemui.tuner.StatusBarSwitch
         android:key="airplane"
         android:title="@string/status_bar_airplane"
