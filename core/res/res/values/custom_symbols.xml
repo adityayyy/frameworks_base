@@ -125,4 +125,13 @@
     <!-- Configuration for detecting whether an oem fast charger is active -->
     <java-symbol type="array" name="config_oemFastChargerStatusPaths" />
 
+    <!-- Pocket mode -->
+    <java-symbol type="layout" name="pocket_mode_layout" />
+    <java-symbol type="drawable" name="prevent_mode_img" />
+    <java-symbol type="id" name="pocket_mode_phone_image" />
+    <java-symbol type="id" name="pocket_mode_active_message" />
+    <java-symbol type="id" name="pocket_mode_hint_message" />
+    <java-symbol type="string" name="pocket_mode_active" />
+    <java-symbol type="string" name="pocket_mode_hint" />
+
 </resources>

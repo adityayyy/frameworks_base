@@ -58,4 +58,8 @@
     <string name="url_copy_success">URL copied successfully</string>
     <string name="url_copy_failed">An error occured while uploading the log to mkr/bin</string>
 
+    <!-- Pocket Mode -->
+    <string name="pocket_mode_active">Pocket Mode is active</string>
+    <string name="pocket_mode_hint">Long press the screen or the power\nbutton to disable Pocket mode.</string>
+
 </resources>
