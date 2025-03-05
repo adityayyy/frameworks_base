@@ -78,16 +78,21 @@ class FaceUnlockImageView @JvmOverloads constructor(
     }
 
     init {
-        statusBarStateController.addCallback(statusBarStateListener)
-        statusBarStateListener.onDozingChanged(statusBarStateController.isDozing())
         visibility = View.GONE
         updateFaceIconState()
     }
 
-    public override fun onAttachedToWindow() {
+    override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         FaceUnlockProxy.INSTANCE().setFaceUnlockView(this)
         updateColor()
+        statusBarStateController.addCallback(statusBarStateListener)
+        statusBarStateListener.onDozingChanged(statusBarStateController.isDozing())
+    }
+    
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        statusBarStateController.removeCallback(statusBarStateListener)
     }
 
     fun updateColor() {
