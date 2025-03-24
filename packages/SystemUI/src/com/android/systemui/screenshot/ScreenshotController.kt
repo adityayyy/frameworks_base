@@ -168,7 +168,7 @@ internal constructor(
         packageLabel = runCatching {
             val info = packageManager.getApplicationInfo(screenshot.packageNameString, 0)
             info.loadLabel(packageManager).toString()
-        }.getOrDefault("")
+        }.getOrDefault(screenshot.packageNameString)
         scrollCaptureExecutor.longScreenshotHolder.foregroundAppName = packageLabel
 
         val currentBitmap = screenshot.bitmap
