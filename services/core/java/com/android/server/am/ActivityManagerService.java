@@ -19686,4 +19686,110 @@ public class ActivityManagerService extends IActivityManager.Stub
     private IBackupManager getBackupManager() {
         return IBackupManager.Stub.asInterface(ServiceManager.getService(Context.BACKUP_SERVICE));
     }
+
+    @Override
+    public void loadProcessMemory(String packageName) {
+        synchronized (mProcLock) {
+            ProcessRecord proc = getProcessRecord(packageName);
+            if (proc != null) {
+                // MADV_POPULATE is only available on 5.14 +
+                if (SystemProperties.getBoolean("ro.sys.axion_is_modern_kernel", true)) {
+                    mOomAdjuster.mCachedAppOptimizer.populateAppMemory(proc.getPid(), false);
+                } else {
+                    mOomAdjuster.mCachedAppOptimizer.compactApp(
+                            proc,
+                            CachedAppOptimizer.CompactProfile.SOME,
+                            CachedAppOptimizer.CompactSource.SHELL,
+                            true);
+                }
+            }
+        }
+    }
+
+    public ProcessRecord getProcessRecord(String str) {
+        ProcessRecord processRecordLocked = null;
+        synchronized (mProcLock) {
+            try {
+                int currentUserId = getCurrentUserId();
+                int packageUid = getPackageManagerInternal().getPackageUid(str, 0, currentUserId);
+                processRecordLocked = getProcessRecordLocked(str, packageUid);
+            } catch (Exception e) {
+            }
+        }
+        return processRecordLocked;
+    }
+
+    @Override
+    public void releaseMemory(int minAdj, int maxKillCount, boolean includeUIProcesses, boolean skipCamera) {
+        if (minAdj == 0) return;
+
+        try {
+            ArrayList<ProcessRecord> processList = 
+                (ArrayList<ProcessRecord>) mProcessList.getLruProcessesLOSP().clone();
+
+            ArrayList<ProcessRecord> runningProcesses = getRunningProcesses();
+
+            processList.addAll(runningProcesses);
+
+            ArrayList<ProcessToKill> toKill = new ArrayList<>();
+
+            for (ProcessRecord record : processList) {
+                if (record != null && record.getSetAdj() >= minAdj) {
+                    boolean hasUI = record.hasActivities();
+                    if (!hasUI || includeUIProcesses) {
+                        toKill.add(new ProcessToKill(record));
+                    }
+                }
+            }
+
+            Collections.sort(toKill, new ProcessComparator());
+
+            int killedCount = 0;
+            for (ProcessToKill info : toKill) {
+                if (info.record != null && isAppFreezerEnabled()) {
+                    mOomAdjuster.mCachedAppOptimizer.freezeAppAsyncImmediateLSP(info.record);
+                }
+                Process.killProcess(info.pid);
+                killedCount++;
+                if (killedCount >= maxKillCount) return;
+            }
+
+        } catch (Exception e) {
+        }
+    }
+
+    private ArrayList<ProcessRecord> getRunningProcesses() {
+        ArrayList<ProcessRecord> runningProcesses = new ArrayList<>();
+        List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = getRunningAppProcesses();
+        for (ActivityManager.RunningAppProcessInfo runningAppProcess : runningAppProcesses) {
+            String processName = runningAppProcess.processName;
+            String packageName = processName.split(":")[0];
+            ProcessRecord processRecord = getProcessRecord(packageName);
+            if (processRecord != null) {
+                runningProcesses.add(processRecord);
+            }
+        }
+        return runningProcesses;
+    }
+
+    public class ProcessComparator implements Comparator<ProcessToKill> {
+        @Override
+        public int compare(ProcessToKill p1, ProcessToKill p2) {
+            return Integer.compare(p2.adj, p1.adj);
+        }
+    }
+
+    public static final class ProcessToKill {
+        public int adj;
+        public String name; 
+        public int pid;
+        public ProcessRecord record;
+
+        public ProcessToKill(ProcessRecord record) {
+            this.pid = record.getPid();
+            this.adj = record.getSetAdj();
+            this.name = record.processName;
+            this.record = record;
+        }
+    }
 }
