@@ -81,6 +81,7 @@ public class HandlerThread extends Thread {
             notifyAll();
         }
         Process.setThreadPriority(mPriority);
+        Process.setThreadAffinity(Process.myTid(), 1);
         onLooperPrepared();
         Looper.loop();
         mTid = -1;
